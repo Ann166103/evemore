@@ -163,7 +163,6 @@ class AnimatedSprite(pygame.sprite.Sprite):
 player2 = AnimatedSprite(load_image("i.webp"), 4, 4, 50, 50)
 
 
-
 running = True
 while running:
     for event in pygame.event.get():
