@@ -8,7 +8,7 @@ pygame.key.set_repeat(200, 70)
 
 FPS = 50
 STEP = 50
-size = WIDTH, HEIGHT = 800, 550
+size = WIDTH, HEIGHT = 700, 550
 screen = pygame.display.set_mode(size)
 clock = pygame.time.Clock()
 
@@ -30,11 +30,6 @@ def load_image(name, colorkey=None):
         image = image.convert_alpha()
     return image
 
-
-tile_images = {'wall': load_image('box.png'), 'empty': load_image('grass.png')}
-player_image = load_image('mario.png')
-
-tile_width = tile_height = 50
 player = None
 all_sprites = pygame.sprite.Group()
 tiles_group = pygame.sprite.Group()
@@ -52,7 +47,7 @@ def start_screen():
                   "Если в правилах несколько строк,",
                   "приходится выводить их построчно"]
 
-    fon = pygame.transform.scale(load_image('fon.jpg'), (WIDTH, HEIGHT))
+    fon = pygame.transform.scale(load_image('fon3.jpg'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
     font = pygame.font.Font(None, 30)
     text_coord = 50
@@ -89,10 +84,11 @@ def load_level(filename):
 
 
 tile_images = {
-    'wall': load_image('box.png'),
-    'empty': load_image('grass.png')
+    'wall': load_image('wall3.png'),
+    'empty': load_image('ice.png'),
+    'lest': load_image('lest2.png')
 }
-player_image = load_image('mario.png')
+player_image = load_image('hero50.png')
 
 tile_width = tile_height = 50
 
@@ -110,7 +106,7 @@ class Player(pygame.sprite.Sprite):
         super().__init__(player_group, all_sprites)
         self.image = player_image
         self.rect = self.image.get_rect().move(
-            tile_width * pos_x + 15, tile_height * pos_y + 5)
+            tile_width * pos_x, tile_height * pos_y - 2)
 
 
 player = None
@@ -131,36 +127,18 @@ def generate_level(level):
             elif level[y][x] == '@':
                 Tile('empty', x, y)
                 new_player = Player(x, y)
+            elif level[y][x] == '&':
+                Tile('wall', x, y)
+                Tile('lest', x, y)
     # вернем игрока, а также размер поля в клетках
     return new_player, x, y
 
 
 start_screen()
-player, level_x, level_y = generate_level(load_level('level.txt'))
+player, level_x, level_y = generate_level(load_level('level1.txt'))
 
 
-class AnimatedSprite(pygame.sprite.Sprite):
-    def __init__(self, sheet, columns, rows, x, y):
-        super().__init__(all_sprites)
-        self.frames = []
-        self.cut_sheet(sheet, columns, rows)
-        self.cur_frame = 0
-        self.image = self.frames[self.cur_frame]
-        self.rect = self.rect.move(x, y)
 
-    def cut_sheet(self, sheet, columns, rows):
-        self.rect = pygame.Rect(0, 0, sheet.get_width() // columns, sheet.get_height() // rows)
-        for j in range(rows):
-            for i in range(columns):
-                frame_location = (self.rect.w * i, self.rect.h * j)
-                self.frames.append(sheet.subsurface(pygame.Rect(frame_location, self.rect.size)))
-
-    def update(self):
-        self.cur_frame = (self.cur_frame + 1) % len(self.frames)
-        self.image = self.frames[self.cur_frame]
-
-
-player2 = AnimatedSprite(load_image("i.webp"), 4, 4, 50, 50)
 
 
 running = True
