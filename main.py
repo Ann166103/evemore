@@ -69,8 +69,7 @@ def start_screen():  # Заставка
 def finish_screen():  # Заставка
     intro_text = ["ЭВЕМОР", "",
                   "GAME OVER",
-                  "Вы прошли игру",
-                  "следующий этаж"]
+                  "Вы прошли 3 уровня игры"]
 
     fon = pygame.transform.scale(load_image('fon3.jpg'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
@@ -91,7 +90,8 @@ def finish_screen():  # Заставка
                 terminate()
             elif event.type == pygame.KEYDOWN or \
                     event.type == pygame.MOUSEBUTTONDOWN:
-                return  # начинаем игру
+                # return  # начинаем игру
+                terminate()
         pygame.display.flip()
         clock.tick(FPS)
 
@@ -185,6 +185,33 @@ def generate_level(level):
 start_screen()
 
 
+def osnov(player, event):
+            if event.key == pygame.K_LEFT:
+                player.rect.x -= STEP
+                if player.rect.x < 0:
+                    player.rect.x = 0
+                if pygame.sprite.groupcollide(player_group, wall_group, False, False):
+                    player.rect.x += STEP
+            if event.key == pygame.K_RIGHT:
+                player.rect.x += STEP
+                if player.rect.x > WIDTH - STEP:
+                    player.rect.x = WIDTH - STEP
+                if pygame.sprite.groupcollide(player_group, wall_group, False, False):
+                    player.rect.x -= STEP
+            if event.key == pygame.K_UP:
+                player.rect.y -= STEP
+                if player.rect.y < 0:
+                    player.rect.y = 0
+                if pygame.sprite.groupcollide(player_group, wall_group, False, False):
+                    player.rect.y += STEP
+            if event.key == pygame.K_DOWN:
+                player.rect.y += STEP
+                if player.rect.y > HEIGHT - STEP:
+                    player.rect.y = HEIGHT - STEP
+                if pygame.sprite.groupcollide(player_group, wall_group, False, False):
+                    player.rect.y -= STEP
+
+
 def level1():
     player, level_x, level_y = generate_level(load_level('level1.txt'))
     running = True
@@ -193,35 +220,7 @@ def level1():
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT:
-                    x = player.rect.x
-                    player.rect.x -= STEP
-                    if player.rect.x < 0:
-                        player.rect.x = 0
-                    if pygame.sprite.groupcollide(player_group, wall_group, False, False):
-                        player.rect.x += STEP
-                if event.key == pygame.K_RIGHT:
-                    x = player.rect.x
-                    player.rect.x += STEP
-                    if player.rect.x > WIDTH - STEP:
-                        player.rect.x = WIDTH - STEP
-                    if pygame.sprite.groupcollide(player_group, wall_group, False, False):
-                        player.rect.x -= STEP
-                if event.key == pygame.K_UP:
-                    y = player.rect.y
-                    player.rect.y -= STEP
-                    if player.rect.y < 0:
-                        player.rect.y = 0
-                    if pygame.sprite.groupcollide(player_group, wall_group, False, False):
-                        player.rect.y += STEP
-                if event.key == pygame.K_DOWN:
-                    y = player.rect.y
-                    player.rect.y += STEP
-                    if player.rect.y > HEIGHT - STEP:
-                        player.rect.y = HEIGHT - STEP
-                    if pygame.sprite.groupcollide(player_group, wall_group, False, False):
-                        player.rect.y -= STEP
-                print(player.rect.x, player.rect.y)
+                osnov(player, event)
         if not pygame.sprite.groupcollide(player_group, lest_group, False, True):
             screen.fill(pygame.Color(0, 0, 0))
             tiles_group.draw(screen)
@@ -248,35 +247,7 @@ def level2():
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT:
-                    x = player.rect.x
-                    player.rect.x -= STEP
-                    if player.rect.x < 0:
-                        player.rect.x = 0
-                    if pygame.sprite.groupcollide(player_group, wall_group, False, False):
-                        player.rect.x += STEP
-                if event.key == pygame.K_RIGHT:
-                    x = player.rect.x
-                    player.rect.x += STEP
-                    if player.rect.x > WIDTH - STEP:
-                        player.rect.x = WIDTH - STEP
-                    if pygame.sprite.groupcollide(player_group, wall_group, False, False):
-                        player.rect.x -= STEP
-                if event.key == pygame.K_UP:
-                    y = player.rect.y
-                    player.rect.y -= STEP
-                    if player.rect.y < 0:
-                        player.rect.y = 0
-                    if pygame.sprite.groupcollide(player_group, wall_group, False, False):
-                        player.rect.y += STEP
-                if event.key == pygame.K_DOWN:
-                    y = player.rect.y
-                    player.rect.y += STEP
-                    if player.rect.y > HEIGHT - STEP:
-                        player.rect.y = HEIGHT - STEP
-                    if pygame.sprite.groupcollide(player_group, wall_group, False, False):
-                        player.rect.y -= STEP
-                print(player.rect.x, player.rect.y)
+                osnov(player, event)
         if not pygame.sprite.groupcollide(player_group, lest_group, False, False):
             screen.fill(pygame.Color(0, 0, 0))
             tiles_group.draw(screen)
@@ -303,35 +274,7 @@ def level3():
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT:
-                    x = player.rect.x
-                    player.rect.x -= STEP
-                    if player.rect.x < 0:
-                        player.rect.x = 0
-                    if pygame.sprite.groupcollide(player_group, wall_group, False, False):
-                        player.rect.x += STEP
-                if event.key == pygame.K_RIGHT:
-                    x = player.rect.x
-                    player.rect.x += STEP
-                    if player.rect.x > WIDTH - STEP:
-                        player.rect.x = WIDTH - STEP
-                    if pygame.sprite.groupcollide(player_group, wall_group, False, False):
-                        player.rect.x -= STEP
-                if event.key == pygame.K_UP:
-                    y = player.rect.y
-                    player.rect.y -= STEP
-                    if player.rect.y < 0:
-                        player.rect.y = 0
-                    if pygame.sprite.groupcollide(player_group, wall_group, False, False):
-                        player.rect.y += STEP
-                if event.key == pygame.K_DOWN:
-                    y = player.rect.y
-                    player.rect.y += STEP
-                    if player.rect.y > HEIGHT - STEP:
-                        player.rect.y = HEIGHT - STEP
-                    if pygame.sprite.groupcollide(player_group, wall_group, False, False):
-                        player.rect.y -= STEP
-                print(player.rect.x, player.rect.y)
+                osnov(player, event)
         if not pygame.sprite.groupcollide(player_group, lest_group, False, False):
             screen.fill(pygame.Color(0, 0, 0))
             tiles_group.draw(screen)
