@@ -1,12 +1,11 @@
 import os
 import sys
-import random
 import pygame
 
 pygame.init()
 pygame.key.set_repeat(200, 70)
 
-FPS = 50
+FPS = 100
 STEP = 50
 size = WIDTH, HEIGHT = 700, 550
 screen = pygame.display.set_mode(size)
@@ -38,13 +37,20 @@ def terminate():
 
 
 def start_screen():  # Заставка
-    intro_text = ["ЭВЕМОР", "",
+    intro_text = ["ЭВЕРМОР", "",
                   "Проберитесь в непреступный",
-                  "замок Эвемор.",
+                  "замок Эвемор и найдите",
+                  "секретное завещание Карла XVI,",
+                  "чтобы предотвратить",
+                  "государственный переворот.",
                   "",
                   "Дойдите до лестницы,",
                   "чтобы подняться на",
-                  "следующий этаж"]
+                  "следующий этаж.",
+                  "Собирайте монеты и",
+                  "остеригайтесь шипов.",
+                  "Используйте клавиши навигации",
+                  "(кнопки со  стрелками)"]
 
     fon = pygame.transform.scale(load_image('fon.jpg'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
@@ -54,13 +60,13 @@ def start_screen():  # Заставка
         string_rendered = font.render(line, 1, pygame.Color(255, 255, 255))
         intro_rect = string_rendered.get_rect()
         intro_rect.top = text_coord
-        if line == "ЭВЕМОР":
+        if line == "ЭВЕРМОР":
             intro_rect.x = 315
         else:
             intro_rect.x = 200
         text_coord += intro_rect.height
         screen.blit(string_rendered, intro_rect)
-        if line == "ЭВЕМОР":
+        if line == "ЭВЕРМОР":
             text_coord += 70
         text_coord += 10
 
@@ -90,34 +96,41 @@ def game_over_screen(price):
         clock.tick(FPS)
 
 
-def finish_screen(price, f):
+def finish_screen(price, f):  # финальное окно
     if f:
-        intro_text = ["ЭВЕМОР", "",
+        intro_text = ["ЭВЕРМОР", "",
                       "Поздравляем!",
                       "Вы смогли пробраться",
                       "в непреступный замок Эвемор",
-                      f"И заработали {price} монет."]
+                      "и найти секретное завещание",
+                      "Карла XVI."
+                      "Благодаря этому страна избежит ",
+                      "государственного переворота",
+                      f"Вы заработали {price} дублонов ",
+                      f"из 130 возможных."]
     else:
-        intro_text = ["ЭВЕМОР", "",
+        intro_text = ["ЭВЕРМОР", "",
                       "Вы не смогли пробраться",
                       "в непреступный замок Эвемор",
-                      f"Попробуйте еще раз."]
+                      "и найти секретное завещание ",
+                      "Карла XVI.",
+                      "Попробуйте еще раз."]
 
     fon = pygame.transform.scale(load_image('fon.jpg'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
     font = pygame.font.Font(None, 30)
-    text_coord = 50
+    text_coord = 20
     for line in intro_text:
         string_rendered = font.render(line, 1, pygame.Color(255, 255, 255))
         intro_rect = string_rendered.get_rect()
         intro_rect.top = text_coord
-        if line == "ЭВЕМОР":
+        if line == "ЭВЕРМОР":
             intro_rect.x = 315
         else:
             intro_rect.x = 200
         text_coord += intro_rect.height
         screen.blit(string_rendered, intro_rect)
-        if line == "ЭВЕМОР":
+        if line == "ЭВЕРМОР":
             text_coord += 70
         text_coord += 10
 
@@ -150,14 +163,15 @@ tile_images = {
     'wall': load_image('wall3.png'),
     'enemies': load_image('enemis.png'),
     'lest': load_image('lest5.png'),
-    'price': load_image('price2.png')
+    'price': load_image('price2.png'),
+    'svitok': load_image('svitok.png')
 }
 player_image = load_image('hero50.png')
 
 tile_width = tile_height = 50
 
 
-class Price(pygame.sprite.Sprite):  # пустое пространство
+class Price(pygame.sprite.Sprite):  # монеты
 
     def __init__(self, tile_type, pos_x, pos_y):
         super().__init__(price_group, all_sprites)
@@ -184,7 +198,7 @@ class Lest(pygame.sprite.Sprite):  # лестница
             tile_width * pos_x, tile_height * pos_y)
 
 
-class Enemies(pygame.sprite.Sprite):  # враги
+class Enemies(pygame.sprite.Sprite):  # шипы
 
     def __init__(self, tile_type, pos_x, pos_y):
         super().__init__(enemies_group, all_sprites)
@@ -212,7 +226,6 @@ enemies_group = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
 
 
-
 def generate_level(level):
     new_player, x, y = None, None, None
     for y in range(len(level)):
@@ -222,13 +235,13 @@ def generate_level(level):
             elif level[y][x] == '#':
                 Wall('wall', x, y)
             elif level[y][x] == '@':
-                # Tile('empty', x, y)
                 new_player = Player(x, y)
             elif level[y][x] == '&':
                 Lest('lest', x, y)
+            elif level[y][x] == '^':
+                Lest('svitok', x, y)
             elif level[y][x] == '%':
                 Enemies('enemies', x, y)
-                # AnimatedSprite(load_image("dragon8x2.png"), 8, 2, x, y)
     # вернем игрока, а также размер поля в клетках
     return new_player, x, y
 
