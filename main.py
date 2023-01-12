@@ -1,6 +1,7 @@
 import os
 import sys
 import pygame
+import random
 
 pygame.init()
 pygame.key.set_repeat(200, 70)
@@ -11,6 +12,8 @@ size = WIDTH, HEIGHT = 700, 550
 screen = pygame.display.set_mode(size)
 clock = pygame.time.Clock()
 price = 0
+gravity = 1
+screen_rect = (0, 0, WIDTH, HEIGHT)
 
 
 def load_image(name, colorkey=None):
@@ -36,6 +39,24 @@ def terminate():
     sys.exit()
 
 
+def render_multi_line(intro_text):  # создание текста
+    font = pygame.font.Font(None, 30)
+    text_coord = 20
+    for line in intro_text:
+        string_rendered = font.render(line, 1, pygame.Color(255, 255, 255))
+        intro_rect = string_rendered.get_rect()
+        intro_rect.top = text_coord
+        if line == "ЭВЕРМОР":
+            intro_rect.x = 315
+        else:
+            intro_rect.x = 200
+        text_coord += intro_rect.height
+        screen.blit(string_rendered, intro_rect)
+        if line == "ЭВЕРМОР":
+            text_coord += 70
+        text_coord += 10
+
+
 def start_screen():  # Заставка
     intro_text = ["ЭВЕРМОР", "",
                   "Проберитесь в непреступный",
@@ -54,21 +75,7 @@ def start_screen():  # Заставка
 
     fon = pygame.transform.scale(load_image('fon.jpg'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
-    font = pygame.font.Font(None, 30)
-    text_coord = 20
-    for line in intro_text:
-        string_rendered = font.render(line, 1, pygame.Color(255, 255, 255))
-        intro_rect = string_rendered.get_rect()
-        intro_rect.top = text_coord
-        if line == "ЭВЕРМОР":
-            intro_rect.x = 315
-        else:
-            intro_rect.x = 200
-        text_coord += intro_rect.height
-        screen.blit(string_rendered, intro_rect)
-        if line == "ЭВЕРМОР":
-            text_coord += 70
-        text_coord += 10
+    render_multi_line(intro_text)
 
     while True:
         for event in pygame.event.get():
@@ -96,6 +103,46 @@ def game_over_screen(price):
         clock.tick(FPS)
 
 
+class Particle(pygame.sprite.Sprite):  # Система частиц
+    # сгенерируем частицы разного размера
+    fire = [load_image("price2.png")]
+    for scale in (5, 10, 20):
+        fire.append(pygame.transform.scale(fire[0], (scale, scale)))
+
+    def __init__(self, pos, dx, dy):
+        super().__init__(price_group2)
+        self.image = random.choice(self.fire)
+        self.rect = self.image.get_rect()
+
+        # у каждой частицы своя скорость - это вектор
+        self.velocity = [dx, dy]
+        # и свои координаты
+        self.rect.x, self.rect.y = pos
+
+        # гравитация будет одинаковой
+        self.gravity = gravity
+
+    def update(self):
+        # применяем гравитационный эффект:
+        # движение с ускорением под действием гравитации
+        self.velocity[1] += self.gravity
+        # перемещаем частицу
+        self.rect.x += self.velocity[0]
+        self.rect.y += self.velocity[1]
+        # убиваем, если частица ушла за экран
+        if not self.rect.colliderect(screen_rect) or (150 < self.rect.x < 550):
+            self.kill()
+
+
+def create_particles(position):
+    # количество создаваемых частиц
+    particle_count = 10
+    # возможные скорости
+    numbers = range(-5, 6)
+    for _ in range(particle_count):
+        Particle(position, random.choice(numbers), random.choice(numbers))
+
+
 def finish_screen(price, f):  # финальное окно
     if f:
         intro_text = ["ЭВЕРМОР", "",
@@ -103,7 +150,7 @@ def finish_screen(price, f):  # финальное окно
                       "Вы смогли пробраться",
                       "в непреступный замок Эвемор",
                       "и найти секретное завещание",
-                      "Карла XVI."
+                      "Карла XVI.",
                       "Благодаря этому страна избежит ",
                       "государственного переворота",
                       f"Вы заработали {price} дублонов ",
@@ -118,32 +165,22 @@ def finish_screen(price, f):  # финальное окно
 
     fon = pygame.transform.scale(load_image('fon.jpg'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
-    font = pygame.font.Font(None, 30)
-    text_coord = 20
-    for line in intro_text:
-        string_rendered = font.render(line, 1, pygame.Color(255, 255, 255))
-        intro_rect = string_rendered.get_rect()
-        intro_rect.top = text_coord
-        if line == "ЭВЕРМОР":
-            intro_rect.x = 315
-        else:
-            intro_rect.x = 200
-        text_coord += intro_rect.height
-        screen.blit(string_rendered, intro_rect)
-        if line == "ЭВЕРМОР":
-            text_coord += 70
-        text_coord += 10
 
     while True:
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+            if event.type == pygame.QUIT or (event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE):
                 terminate()
             elif event.type == pygame.KEYDOWN or \
                     event.type == pygame.MOUSEBUTTONDOWN:
-                # return  # начинаем игру
                 terminate()
+        create_particles((random.randint(1, 100), random.randint(1, 550)))
+        create_particles((random.randint(550, 700), random.randint(1, 550)))
+        screen.blit(fon, (0, 0))
+        price_group2.draw(screen)
+        price_group2.update()
+        render_multi_line(intro_text)
         pygame.display.flip()
-        clock.tick(FPS)
+        clock.tick(10)
 
 
 def load_level(filename):
@@ -207,7 +244,7 @@ class Enemies(pygame.sprite.Sprite):  # шипы
             tile_width * pos_x, tile_height * pos_y)
 
 
-class Player(pygame.sprite.Sprite):
+class Player(pygame.sprite.Sprite):  # игрок
 
     def __init__(self, pos_x, pos_y):
         super().__init__(player_group, all_sprites)
@@ -220,6 +257,7 @@ player = None
 # группы спрайтов
 all_sprites = pygame.sprite.Group()
 price_group = pygame.sprite.Group()
+price_group2 = pygame.sprite.Group()
 wall_group = pygame.sprite.Group()
 lest_group = pygame.sprite.Group()
 enemies_group = pygame.sprite.Group()
