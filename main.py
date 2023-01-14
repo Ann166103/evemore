@@ -122,6 +122,7 @@ class Particle(pygame.sprite.Sprite):  # Система частиц
         # гравитация будет одинаковой
         self.gravity = gravity
 
+
     def update(self):
         # применяем гравитационный эффект:
         # движение с ускорением под действием гравитации
@@ -320,7 +321,13 @@ def osnov(player, price):
                         player.rect.y -= STEP
         if pygame.sprite.groupcollide(player_group, price_group, False, True):
             price += 10
-        if pygame.sprite.groupcollide(player_group, enemies_group, True, False):
+        if pygame.sprite.groupcollide(player_group, enemies_group, False, False):
+            screen.fill(pygame.Color(25, 25, 112))
+            price_group.draw(screen)
+            wall_group.draw(screen)
+            lest_group.draw(screen)
+            enemies_group.draw(screen)
+            player_group.draw(screen)
             return (1, price)
         if not pygame.sprite.groupcollide(player_group, lest_group, False, False):
             screen.fill(pygame.Color(25, 25, 112))
